@@ -1,0 +1,12 @@
+.app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1vw;
+}
+
+.app__widget-container {
+  width: 100%;
+  aspect-ratio: 300 / 73;
+}

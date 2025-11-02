@@ -66,6 +66,7 @@ export interface HabitCheckin {
 // ==================== Statistics ====================
 
 export interface TimeStats {
+  date: Date;
   focusedTimeWork: number;
   focusedTimePersonal: number;
   focusedTimeRescuetime: number;

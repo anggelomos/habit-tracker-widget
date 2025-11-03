@@ -4,15 +4,6 @@ type IconProps = SVGProps<SVGSVGElement> & {
   size?: number;
 };
 
-const baseProps = {
-  viewBox: "0 0 48 48",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 2.5,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
-
 const withSize = (Component: FC<IconProps>) => {
   const Icon: FC<IconProps> = ({ ...props }) => (
     <Component {...props} />
@@ -398,7 +389,7 @@ const SunFilled: FC<IconProps> = ({ ...props }) => (
 
 export const SunIconFilled = withSize(SunFilled);
 
-const Dumbbell: FC<IconProps> = ({ ...props }) => (
+const Dumbbell: FC<IconProps> = () => (
   <svg
     id="fi_10772604"
     height="420"
@@ -418,7 +409,7 @@ const Dumbbell: FC<IconProps> = ({ ...props }) => (
 
 export const DumbbellIcon = withSize(Dumbbell);
 
-const DumbbellFilled: FC<IconProps> = ({ ...props }) => (
+const DumbbellFilled: FC<IconProps> = () => (
   <svg
     id="fi_10753440"
     height="420"
@@ -474,7 +465,7 @@ const DumbbellFilled: FC<IconProps> = ({ ...props }) => (
 
 export const DumbbellIconFilled = withSize(DumbbellFilled);
 
-const YinYang: FC<IconProps> = ({ ...props }) => (
+const YinYang: FC<IconProps> = () => (
   <svg
     id="fi_6043816"
     height="450"
@@ -547,7 +538,7 @@ const YinYangFilled: FC<IconProps> = ({ ...props }) => (
 
 export const YinYangIconFilled = withSize(YinYangFilled);
 
-const Pen: FC<IconProps> = ({ ...props }) => (
+const Pen: FC<IconProps> = () => (
   <svg
     id="fi_7310512"
     height="512"
@@ -564,7 +555,7 @@ const Pen: FC<IconProps> = ({ ...props }) => (
 
 export const PenIcon = withSize(Pen);
 
-const PenFilled: FC<IconProps> = ({ ...props }) => (
+const PenFilled: FC<IconProps> = () => (
   <svg
     height="512"
     viewBox="0 0 64 64"
@@ -843,7 +834,7 @@ const ShowerFilled: FC<IconProps> = ({ ...props }) => (
 
 export const ShowerIconFilled = withSize(ShowerFilled);
 
-const Apple: FC<IconProps> = ({ ...props }) => (
+const Apple: FC<IconProps> = () => (
   <svg
     height="450pt"
     viewBox="-31 0 512 512.001"
@@ -857,7 +848,7 @@ const Apple: FC<IconProps> = ({ ...props }) => (
 
 export const AppleIcon = withSize(Apple);
 
-const AppleFilled: FC<IconProps> = ({ ...props }) => (
+const AppleFilled: FC<IconProps> = () => (
   <svg
     height="450pt"
     viewBox="-31 0 512 512.001"
@@ -890,7 +881,7 @@ const AppleFilled: FC<IconProps> = ({ ...props }) => (
 
 export const AppleIconFilled = withSize(AppleFilled);
 
-const Book: FC<IconProps> = ({ ...props }) => (
+const Book: FC<IconProps> = () => (
   <svg
     id="fi_8340584"
     height="490"
@@ -906,7 +897,7 @@ const Book: FC<IconProps> = ({ ...props }) => (
 
 export const BookIcon = withSize(Book);
 
-const BookFilled: FC<IconProps> = ({ ...props }) => (
+const BookFilled: FC<IconProps> = () => (
   <svg
     id="fi_8340681"
     height="490"

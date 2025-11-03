@@ -10,11 +10,22 @@ const STORAGE_KEYS = {
 
 export function saveCurrentDate(currentDate: CurrentDate): void {
   try {
+    // Validate currentDate object and date
+    if (!currentDate || !currentDate.date) {
+      console.warn('Invalid currentDate object provided to saveCurrentDate');
+      return;
+    }
+
+    // Ensure date is a Date object
+    const dateValue = currentDate.date instanceof Date && !isNaN(currentDate.date.getTime())
+      ? currentDate.date.toISOString()
+      : new Date().toISOString();
+
     localStorage.setItem(
       STORAGE_KEYS.CURRENT_DATE,
       JSON.stringify({
         ...currentDate,
-        date: currentDate.date.toISOString(),
+        date: dateValue,
       })
     );
   } catch (error) {
@@ -42,22 +53,39 @@ export function loadCurrentDate(): CurrentDate | null {
 
 export function saveCurrentHabits(habits: Habits): void {
   try {
+    // Validate habits object and date
+    if (!habits || !habits.date) {
+      console.warn('Invalid habits object provided to saveCurrentHabits');
+      return;
+    }
+
+    // Ensure date is a Date object
+    const dateValue = habits.date instanceof Date && !isNaN(habits.date.getTime())
+      ? habits.date.toISOString()
+      : new Date().toISOString();
+
     localStorage.setItem(
       STORAGE_KEYS.CURRENT_HABITS,
       JSON.stringify({
         ...habits,
-        date: habits.date.toISOString(),
-        brushSessions: habits.brushSessions.map(session => ({
+        date: dateValue,
+        brushSessions: (habits.brushSessions || []).map(session => ({
           ...session,
-          timestamp: session.timestamp.toISOString(),
+          timestamp: session?.timestamp instanceof Date && !isNaN(session.timestamp.getTime())
+            ? session.timestamp.toISOString()
+            : new Date().toISOString(),
         })),
-        waterIntakes: habits.waterIntakes.map(intake => ({
+        waterIntakes: (habits.waterIntakes || []).map(intake => ({
           ...intake,
-          timestamp: intake.timestamp.toISOString(),
+          timestamp: intake?.timestamp instanceof Date && !isNaN(intake.timestamp.getTime())
+            ? intake.timestamp.toISOString()
+            : new Date().toISOString(),
         })),
-        habitCheckins: habits.habitCheckins.map(checkin => ({
+        habitCheckins: (habits.habitCheckins || []).map(checkin => ({
           ...checkin,
-          timestamp: checkin.timestamp.toISOString(),
+          timestamp: checkin?.timestamp instanceof Date && !isNaN(checkin.timestamp.getTime())
+            ? checkin.timestamp.toISOString()
+            : new Date().toISOString(),
         })),
       })
     );

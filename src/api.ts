@@ -17,7 +17,25 @@ export async function getHabits(date: Date): Promise<Habits> {
     throw new Error(`Failed to fetch habits: ${response.statusText}`);
   }
   
-  return response.json();
+  const data = await response.json();
+  
+  // Parse date strings into Date objects
+  return {
+    ...data,
+    date: data.date ? new Date(data.date) : new Date(),
+    brushSessions: (data.brushSessions || []).map((session: any) => ({
+      ...session,
+      timestamp: session.timestamp ? new Date(session.timestamp) : new Date(),
+    })),
+    waterIntakes: (data.waterIntakes || []).map((intake: any) => ({
+      ...intake,
+      timestamp: intake.timestamp ? new Date(intake.timestamp) : new Date(),
+    })),
+    habitCheckins: (data.habitCheckins || []).map((checkin: any) => ({
+      ...checkin,
+      timestamp: checkin.timestamp ? new Date(checkin.timestamp) : new Date(),
+    })),
+  };
 }
 
 /**
@@ -46,14 +64,16 @@ export async function saveHabits(habits: Habits): Promise<Habits> {
  * POST /api/set-tasks/day
  * Set tasks for a specific day
  */
-export async function setTasksDay(): Promise<void> {
+export async function setTasksDay(date: Date): Promise<void> {
+  const dateParam = date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
   const response = await fetch(`${API_BASE_URL}/api/set-tasks/day`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
+    body: JSON.stringify({ "date": dateParam }),
   });
-  
+
   if (!response.ok) {
     throw new Error(`Failed to set tasks: ${response.statusText}`);
   }
@@ -79,6 +99,12 @@ export async function getTimeStats(date?: Date): Promise<TimeStats> {
     throw new Error(`Failed to fetch time stats: ${response.statusText}`);
   }
   
-  return response.json();
+  const data = await response.json();
+  
+  // Parse date string into Date object
+  return {
+    ...data,
+    date: data.date ? new Date(data.date) : new Date(),
+  };
 }
 

@@ -19,6 +19,8 @@ interface AppContextState {
   isLoading: boolean;
   error: string | null;
   refreshData: () => Promise<void>;
+  updateCurrentHabits: (habits: Habits) => void;
+  setCurrentDate: (date: Date) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextState | undefined>(undefined);
@@ -116,8 +118,61 @@ export function AppProvider({ children }: AppProviderProps) {
     fetchData();
   }, []);
 
+  // Auto-refresh data every 10 minutes
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      console.log('Auto-refreshing data (10 min interval)...');
+      fetchData();
+    }, 10 * 60 * 1000); // 10 minutes in milliseconds
+
+    // Cleanup interval on component unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   const refreshData = async () => {
     await fetchData();
+  };
+
+  const updateCurrentHabits = (habits: Habits) => {
+    setCurrentHabits(habits);
+    saveCurrentHabits(habits);
+  };
+
+  const setCurrentDateAndFetch = async (date: Date) => {
+    // Create new current date object
+    const currentDateObj = createCurrentDate(date);
+
+    // Save to localStorage
+    saveCurrentDate(currentDateObj);
+    setCurrentDate(currentDateObj);
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Fetch habits and time stats for the new date
+      const [habitsData, timeStatsData] = await Promise.all([
+        getHabits(date),
+        getTimeStats(date),
+      ]);
+
+      // Save to localStorage
+      saveCurrentHabits(habitsData);
+      saveCurrentTimeStats(timeStatsData);
+
+      // Update state
+      setCurrentHabits(habitsData);
+      setCurrentTimeStats(timeStatsData);
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch data";
+      console.error("Error fetching data for new date:", err);
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const value: AppContextState = {
@@ -127,6 +182,8 @@ export function AppProvider({ children }: AppProviderProps) {
     isLoading,
     error,
     refreshData,
+    updateCurrentHabits,
+    setCurrentDate: setCurrentDateAndFetch,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

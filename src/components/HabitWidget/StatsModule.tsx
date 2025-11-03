@@ -1,13 +1,16 @@
 import './HabitWidget.css'
-
-const stats = {
-  ftw: 12.5,
-  ftp: 10.5,
-  ftr: 8.3,
-  lt: 11.6,
-}
+import { useApp } from '../../context/AppContext'
 
 export function StatsModule() {
+  const { currentTimeStats } = useApp()
+
+  const stats = {
+    ftw: currentTimeStats?.focusedTimeWork ?? 0,
+    ftp: currentTimeStats?.focusedTimePersonal ?? 0,
+    ftr: currentTimeStats?.focusedTimeRescuetime ?? 0,
+    lt: currentTimeStats?.leisureTime ?? 0,
+  }
+
   return (
     <section className="stats-module" aria-label="Weekly statistics">
       <div className="stats-module__grid">

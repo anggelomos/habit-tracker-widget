@@ -24,7 +24,7 @@ const habits = [
   { id: "sunlight", icon: SunIcon, iconFilled: SunIconFilled, label: "Sunlight" },
   { id: "exercise", icon: DumbbellIcon, iconFilled: DumbbellIconFilled, label: "Strength training" },
   { id: "meditate", icon: YinYangIcon, iconFilled: YinYangIconFilled, label: "Balance practice" },
-  { id: "journaling", icon: PenIcon, iconFilled: PenIconFilled, label: "Journaling" },
+  { id: "hidden_journaling", icon: PenIcon, iconFilled: PenIconFilled, label: "Journaling" },
   { id: "journaling", icon: PenIcon, iconFilled: PenIconFilled, label: "Journaling" },
   { id: "shower", icon: ShowerIcon, iconFilled: ShowerIconFilled, label: "Shower" },
   { id: "eatHealthy", icon: AppleIcon, iconFilled: AppleIconFilled, label: "Eat fruit" },

@@ -33,10 +33,10 @@ export function AppProvider({ children }: AppProviderProps) {
   const [currentDate, setCurrentDate] = useState<CurrentDate | null>(null);
   const [currentHabits, setCurrentHabits] = useState<Habits | null>(null);
   const [currentTimeStats, setCurrentTimeStats] = useState<TimeStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = async (showLoading = false) => {
     // Get current date with UTC-5
     const dateUTC5 = getCurrentDateUTC5();
     const currentDateObj = createCurrentDate(dateUTC5);
@@ -46,7 +46,9 @@ export function AppProvider({ children }: AppProviderProps) {
     setCurrentDate(currentDateObj);
 
     try {
-      setIsLoading(true);
+      if (showLoading) {
+        setIsLoading(true);
+      }
       setError(null);
 
       // Fetch habits and time stats in parallel
@@ -100,7 +102,9 @@ export function AppProvider({ children }: AppProviderProps) {
       if (storedHabits) setCurrentHabits(storedHabits);
       if (storedTimeStats) setCurrentTimeStats(storedTimeStats);
     } finally {
-      setIsLoading(false);
+      if (showLoading) {
+        setIsLoading(false);
+      }
     }
   };
 

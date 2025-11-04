@@ -16,7 +16,6 @@ import {
   YinYangIconFilled,
 } from "./icons";
 import { useApp } from "../../context/AppContext";
-import { saveHabits } from "../../api";
 import { CheckinStatus } from "../../models";
 import type { HabitCheckin } from "../../models";
 
@@ -34,7 +33,7 @@ const habits = [
 export function HabitsModule() {
   const { currentHabits, updateCurrentHabits } = useApp();
 
-  const handleHabitClick = async (habitId: string) => {
+  const handleHabitClick = (habitId: string) => {
     if (!currentHabits) return;
 
     const existingCheckinIndex = currentHabits.habitCheckins.findIndex(
@@ -72,15 +71,8 @@ export function HabitsModule() {
       habitCheckins: updatedCheckins,
     };
 
-    // Update local state
+    // Update local state (context will handle debounced API save)
     updateCurrentHabits(updatedHabits);
-
-    // Send to API
-    try {
-      await saveHabits(updatedHabits);
-    } catch (error) {
-      console.error("Failed to save habits:", error);
-    }
   };
 
   const getHabitStatus = (habitId: string): CheckinStatus | null => {

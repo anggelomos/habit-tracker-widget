@@ -1,7 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import type { CurrentDate, Habits, TimeStats } from '../models';
-import { getHabits, getTimeStats } from '../api';
+import { getHabits, getTimeStats, saveHabits } from '../api';
 import { getCurrentDateUTC5, createCurrentDate } from '../utils/dateUtils';
 import {
   saveCurrentDate,
@@ -11,6 +11,10 @@ import {
   saveCurrentTimeStats,
   loadCurrentTimeStats,
 } from '../utils/storage';
+
+// Configuration: Debounce time for saving habits to API (in milliseconds)
+// This prevents race conditions when multiple buttons are clicked rapidly
+const HABITS_SAVE_DEBOUNCE_MS = 2000; // 2 seconds
 
 interface AppContextState {
   currentDate: CurrentDate | null;
@@ -35,6 +39,11 @@ export function AppProvider({ children }: AppProviderProps) {
   const [currentTimeStats, setCurrentTimeStats] = useState<TimeStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Ref to store the debounce timer for saving habits
+  const saveHabitsTimerRef = useRef<number | null>(null);
+  // Ref to store the latest habits that need to be saved
+  const pendingHabitsRef = useRef<Habits | null>(null);
 
   const fetchData = async (showLoading = false) => {
     // Get current date with UTC-5
@@ -135,13 +144,52 @@ export function AppProvider({ children }: AppProviderProps) {
     };
   }, []);
 
+  // Cleanup: Save any pending habits immediately on unmount
+  useEffect(() => {
+    return () => {
+      if (saveHabitsTimerRef.current !== null) {
+        clearTimeout(saveHabitsTimerRef.current);
+      }
+      // Save immediately if there are pending changes
+      if (pendingHabitsRef.current) {
+        saveHabits(pendingHabitsRef.current).catch((error) => {
+          console.error('Failed to save pending habits on unmount:', error);
+        });
+      }
+    };
+  }, []);
+
   const refreshData = async () => {
     await fetchData();
   };
 
   const updateCurrentHabits = (habits: Habits) => {
+    // Update local state immediately (optimistic update)
     setCurrentHabits(habits);
     saveCurrentHabits(habits);
+    
+    // Store the pending habits
+    pendingHabitsRef.current = habits;
+    
+    // Clear any existing timer
+    if (saveHabitsTimerRef.current !== null) {
+      clearTimeout(saveHabitsTimerRef.current);
+    }
+    
+    // Set up a new debounced save to API
+    saveHabitsTimerRef.current = window.setTimeout(async () => {
+      if (pendingHabitsRef.current) {
+        try {
+          await saveHabits(pendingHabitsRef.current);
+          console.log('Habits saved to API (debounced)');
+        } catch (error) {
+          console.error('Failed to save habits to API:', error);
+        } finally {
+          pendingHabitsRef.current = null;
+          saveHabitsTimerRef.current = null;
+        }
+      }
+    }, HABITS_SAVE_DEBOUNCE_MS);
   };
 
   const setCurrentDateAndFetch = async (date: Date) => {

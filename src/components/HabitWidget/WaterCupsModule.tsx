@@ -1,7 +1,6 @@
 import "./HabitWidget.css";
 import { CupIcon, CupIconFull, CupIconHalf } from "./icons";
 import { useApp } from "../../context/AppContext";
-import { saveHabits } from "../../api";
 import { WaterStatus, type WaterIntake } from "../../models";
 
 const waterSchedule = [
@@ -12,7 +11,7 @@ const waterSchedule = [
 export function WaterCupsModule() {
   const { currentHabits, updateCurrentHabits } = useApp();
 
-  const handleCupClick = async (timeId: string) => {
+  const handleCupClick = (timeId: string) => {
     if (!currentHabits) return;
 
     const existingIntake = currentHabits.waterIntakes.find(
@@ -52,15 +51,8 @@ export function WaterCupsModule() {
       waterIntakes: updatedWaterIntakes,
     };
 
-    // Update local state
+    // Update local state (context will handle debounced API save)
     updateCurrentHabits(updatedHabits);
-
-    // Save to API
-    try {
-      await saveHabits(updatedHabits);
-    } catch (error) {
-      console.error("Failed to save water intake:", error);
-    }
   };
 
   const getCupIcon = (timeId: string) => {

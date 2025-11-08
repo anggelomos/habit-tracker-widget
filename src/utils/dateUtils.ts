@@ -1,16 +1,5 @@
 import type { CurrentDate } from '../models';
 
-/**
- * Get the current date adjusted for UTC-5 timezone
- */
-export function getCurrentDateUTC5(): Date {
-  const now = new Date();
-  // Get UTC time and adjust by -5 hours
-  const utcOffset = now.getTimezoneOffset() * 60000; // Convert to milliseconds
-  const utcTime = now.getTime() + utcOffset;
-  const utc5Time = utcTime - (5 * 60 * 60 * 1000); // Subtract 5 hours
-  return new Date(utc5Time);
-}
 
 /**
  * Get the day of the year (1-366)

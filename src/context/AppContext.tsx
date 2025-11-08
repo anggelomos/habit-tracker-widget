@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import type { CurrentDate, Habits, TimeStats } from '../models';
 import { getHabits, getTimeStats, saveHabits } from '../api';
-import { getCurrentDateUTC5, createCurrentDate } from '../utils/dateUtils';
+import { createCurrentDate } from '../utils/dateUtils';
 import {
   saveCurrentDate,
   loadCurrentDate,
@@ -46,9 +46,8 @@ export function AppProvider({ children }: AppProviderProps) {
   const pendingHabitsRef = useRef<Habits | null>(null);
 
   const fetchData = async (showLoading = false) => {
-    // Get current date with UTC-5
-    const dateUTC5 = getCurrentDateUTC5();
-    const currentDateObj = createCurrentDate(dateUTC5);
+    const currentDate = new Date();
+    const currentDateObj = createCurrentDate(currentDate);
 
     // Save to localStorage
     saveCurrentDate(currentDateObj);
@@ -62,8 +61,8 @@ export function AppProvider({ children }: AppProviderProps) {
 
       // Fetch habits and time stats in parallel
       const [habitsData, timeStatsData] = await Promise.all([
-        getHabits(dateUTC5),
-        getTimeStats(dateUTC5),
+        getHabits(currentDate),
+        getTimeStats(currentDate),
       ]);
 
       // Save to localStorage

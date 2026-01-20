@@ -1,4 +1,5 @@
 import type { Habits, TimeStats } from './models';
+import { toLocalISODate, jsonStringifyLocal } from './utils/dateUtils';
 
 // Base API URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
@@ -10,7 +11,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000
  * Fetch habits data for a specific date
  */
 export async function getHabits(date: Date): Promise<Habits> {
-  const dateParam = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+  const dateParam = toLocalISODate(date); // Format as YYYY-MM-DD in local timezone
   const response = await fetch(`${API_BASE_URL}/api/habits?date=${dateParam}`);
   
   if (!response.ok) {
@@ -48,7 +49,9 @@ export async function saveHabits(habits: Habits): Promise<Habits> {
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(habits),
+    // jsonStringifyLocal converts all Date objects to local timezone
+    // (the replacer approach doesn't work because Date.toJSON() runs first)
+    body: jsonStringifyLocal(habits),
   });
   
   if (!response.ok) {
@@ -65,7 +68,7 @@ export async function saveHabits(habits: Habits): Promise<Habits> {
  * Set tasks for a specific day
  */
 export async function setTasksDay(date: Date): Promise<void> {
-  const dateParam = date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+  const dateParam = toLocalISODate(date); // Format as YYYY-MM-DD in local timezone
   const response = await fetch(`${API_BASE_URL}/api/set-tasks/day`, {
     method: "POST",
     headers: {
@@ -89,7 +92,7 @@ export async function getTimeStats(date?: Date): Promise<TimeStats> {
   const url = new URL(`${API_BASE_URL}/api/time-stats`);
   
   if (date) {
-    const dateParam = date.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    const dateParam = toLocalISODate(date); // Format as YYYY-MM-DD in local timezone
     url.searchParams.append('date', dateParam);
   }
   

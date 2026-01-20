@@ -1,6 +1,5 @@
 import { ArrowIcon } from './icons';
 import { useApp } from '../../context/AppContext';
-import { getCurrentDateUTC5 } from '../../utils/dateUtils';
 
 type NavigationButtonProps = {
   direction: 'previous' | 'next';
@@ -14,7 +13,7 @@ export function NavigationButton({ direction }: NavigationButtonProps) {
   const isFutureDisabled = () => {
     if (!currentDate?.date || isPrevious) return false;
     
-    const today = getCurrentDateUTC5();
+    const today = new Date();
     const currentDateOnly = new Date(currentDate.date);
     
     // Set time to midnight for comparison

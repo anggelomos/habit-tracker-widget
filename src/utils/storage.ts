@@ -1,4 +1,5 @@
 import type { CurrentDate, Habits, TimeStats } from '../models';
+import { jsonStringifyLocal } from './dateUtils';
 
 const STORAGE_KEYS = {
   CURRENT_DATE: 'currentDate',
@@ -10,24 +11,13 @@ const STORAGE_KEYS = {
 
 export function saveCurrentDate(currentDate: CurrentDate): void {
   try {
-    // Validate currentDate object and date
     if (!currentDate || !currentDate.date) {
       console.warn('Invalid currentDate object provided to saveCurrentDate');
       return;
     }
 
-    // Ensure date is a Date object
-    const dateValue = currentDate.date instanceof Date && !isNaN(currentDate.date.getTime())
-      ? currentDate.date.toISOString()
-      : new Date().toISOString();
-
-    localStorage.setItem(
-      STORAGE_KEYS.CURRENT_DATE,
-      JSON.stringify({
-        ...currentDate,
-        date: dateValue,
-      })
-    );
+    // jsonStringifyLocal automatically converts Date objects to local timezone
+    localStorage.setItem(STORAGE_KEYS.CURRENT_DATE, jsonStringifyLocal(currentDate));
   } catch (error) {
     console.error('Failed to save current date to localStorage:', error);
   }
@@ -53,42 +43,13 @@ export function loadCurrentDate(): CurrentDate | null {
 
 export function saveCurrentHabits(habits: Habits): void {
   try {
-    // Validate habits object and date
     if (!habits || !habits.date) {
       console.warn('Invalid habits object provided to saveCurrentHabits');
       return;
     }
 
-    // Ensure date is a Date object
-    const dateValue = habits.date instanceof Date && !isNaN(habits.date.getTime())
-      ? habits.date.toISOString()
-      : new Date().toISOString();
-
-    localStorage.setItem(
-      STORAGE_KEYS.CURRENT_HABITS,
-      JSON.stringify({
-        ...habits,
-        date: dateValue,
-        brushSessions: (habits.brushSessions || []).map(session => ({
-          ...session,
-          timestamp: session?.timestamp instanceof Date && !isNaN(session.timestamp.getTime())
-            ? session.timestamp.toISOString()
-            : new Date().toISOString(),
-        })),
-        waterIntakes: (habits.waterIntakes || []).map(intake => ({
-          ...intake,
-          timestamp: intake?.timestamp instanceof Date && !isNaN(intake.timestamp.getTime())
-            ? intake.timestamp.toISOString()
-            : new Date().toISOString(),
-        })),
-        habitCheckins: (habits.habitCheckins || []).map(checkin => ({
-          ...checkin,
-          timestamp: checkin?.timestamp instanceof Date && !isNaN(checkin.timestamp.getTime())
-            ? checkin.timestamp.toISOString()
-            : new Date().toISOString(),
-        })),
-      })
-    );
+    // jsonStringifyLocal automatically converts all Date objects to local timezone
+    localStorage.setItem(STORAGE_KEYS.CURRENT_HABITS, jsonStringifyLocal(habits));
   } catch (error) {
     console.error('Failed to save habits to localStorage:', error);
   }
@@ -126,7 +87,13 @@ export function loadCurrentHabits(): Habits | null {
 
 export function saveCurrentTimeStats(timeStats: TimeStats): void {
   try {
-    localStorage.setItem(STORAGE_KEYS.CURRENT_TIME_STATS, JSON.stringify(timeStats));
+    if (!timeStats || !timeStats.date) {
+      console.warn('Invalid timeStats object provided to saveCurrentTimeStats');
+      return;
+    }
+
+    // jsonStringifyLocal automatically converts Date objects to local timezone
+    localStorage.setItem(STORAGE_KEYS.CURRENT_TIME_STATS, jsonStringifyLocal(timeStats));
   } catch (error) {
     console.error('Failed to save time stats to localStorage:', error);
   }
@@ -137,10 +104,13 @@ export function loadCurrentTimeStats(): TimeStats | null {
     const stored = localStorage.getItem(STORAGE_KEYS.CURRENT_TIME_STATS);
     if (!stored) return null;
     
-    return JSON.parse(stored);
+    const parsed = JSON.parse(stored);
+    return {
+      ...parsed,
+      date: new Date(parsed.date),
+    };
   } catch (error) {
     console.error('Failed to load time stats from localStorage:', error);
     return null;
   }
 }
-

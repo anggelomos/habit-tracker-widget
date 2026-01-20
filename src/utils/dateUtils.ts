@@ -1,16 +1,57 @@
 import type { CurrentDate } from '../models';
 
+// ==================== Date Formatting Utilities ====================
+
 /**
- * Get the current date adjusted for UTC-5 timezone
+ * Format a Date as YYYY-MM-DD in the local timezone
+ * (unlike toISOString() which converts to UTC first)
  */
-export function getCurrentDateUTC5(): Date {
-  const now = new Date();
-  // Get UTC time and adjust by -5 hours
-  const utcOffset = now.getTimezoneOffset() * 60000; // Convert to milliseconds
-  const utcTime = now.getTime() + utcOffset;
-  const utc5Time = utcTime - (5 * 60 * 60 * 1000); // Subtract 5 hours
-  return new Date(utc5Time);
+export function toLocalISODate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
+
+/**
+ * Format a Date as ISO 8601 string in the local timezone
+ * (unlike toISOString() which converts to UTC first)
+ */
+export function toLocalISOString(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const ms = String(date.getMilliseconds()).padStart(3, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${ms}`;
+}
+
+/**
+ * JSON.stringify that converts Date objects to local ISO strings
+ * instead of UTC (which is the default behavior of Date.toJSON()).
+ * 
+ * This solves the root cause: JSON.stringify calls Date.toJSON() BEFORE
+ * any replacer function sees the value, so replacer-based approaches fail.
+ */
+export function jsonStringifyLocal(value: unknown): string {
+  const originalToJSON = Date.prototype.toJSON;
+  
+  // Temporarily override Date.prototype.toJSON to use local timezone
+  Date.prototype.toJSON = function() {
+    return toLocalISOString(this);
+  };
+  
+  try {
+    return JSON.stringify(value);
+  } finally {
+    // Restore the original toJSON
+    Date.prototype.toJSON = originalToJSON;
+  }
+}
+
+// ==================== Date Calculation Utilities ====================
 
 /**
  * Get the day of the year (1-366)
